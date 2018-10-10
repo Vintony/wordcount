@@ -41,7 +41,32 @@ for arg in args:
         flag = True
         count += 1
     else:
-        break
+        isFlag = False
+        if arg[0] == '-':
+            isFlag = True
+            if len(arg) == '1':
+                break
+        else:
+            break
+
+        for letter in arg[1:]:
+            if not isFlag:
+                if letter == '-':
+                    isFlag = True
+                else:
+                    break
+
+            if isFlag:
+                if letter == 'l':
+                    lflag = True
+                elif letter == 'w':
+                    wflag = True
+                elif letter == 'c':
+                    cflag = True
+                else:
+                    sys.exit('wc: illegal option -- %s\nusage: wc [-clmw] [file ...]' % letter)
+        count += 1
+
 
 # print(lflag, wflag, cflag)
 # print(flag)
@@ -80,11 +105,11 @@ for file in filename:
                 # print('c')
                 # print(charcount)
                 result += ('\t%(charcount)s' % {'charcount': charcount})
-            result += ' '
+            result += '\t'
             result += args[count]
         else:
             # print(args[count])
-            result += ('\t%(linecount)s\t%(wordcount)s\t%(charcount)s ' % locals())
+            result += ('\t%(linecount)s\t%(wordcount)s\t%(charcount)s\t' % locals())
             result += args[count]
         count += 1
         # print(remain)
@@ -92,8 +117,10 @@ for file in filename:
             result += '\n'
 
     except IOError as e:
-        print('wc: %s: open: No such file or directory' % args[count])
+        result += ('wc: %s: open: No such file or directory' % args[count])
         count += 1
+        if remain > 1:
+            result += '\n'
 if remain > 1:
     if flag:
         if lflag:
@@ -108,8 +135,13 @@ if remain > 1:
             # print('c')
             # print(charcount)
             result += ('\t%(totalchar)s' % {'totalchar': totalchar})
-        result += ' total'
+        result += '\ttotal'
     else:
         # print(args[count])
-        result += ('\t%(totalline)s\t%(totalword)s\t%(totalchar)s total' % locals())
-print(result)
+        result += ('\t%(totalline)s\t%(totalword)s\t%(totalchar)s\ttotal' % locals())
+
+if remain == 0:
+    print('wc:  : open: No such file or directory')
+
+if not result == '':
+    print(result)
